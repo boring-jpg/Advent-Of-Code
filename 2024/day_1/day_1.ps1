@@ -1,59 +1,54 @@
+# O(n)
 [array]$masterList = Get-Content -Path .\input.txt
 
-$leftList = [System.Collections.ArrayList]@()
-$rightList = [System.Collections.ArrayList]@()
+[System.Collections.ArrayList]$leftList = @()
+[System.Collections.ArrayList]$rightList = @()
 
 foreach($line in $masterList) {
-    [array]$split = $line.Split("   ")
-
-    $leftList += $split[0]
-    $rightList += $split[1]
+    [void]$leftList.Add($($line.Split("   "))[0])
+    [void]$rightList.Add($($line.Split("   "))[1])
 };
 
-[System.Collections.ArrayList]$leftList = $leftList | Sort-Object
-[System.Collections.ArrayList]$rightList = $rightList | Sort-Object
+# O(n log n) .net arrayList uses quicksort
+$leftList.Sort()
+$rightList.Sort()
 
-$totalDistanceList = [System.Collections.ArrayList]@()
+# O(n)
 [int]$i = 0
+[System.Collections.ArrayList]$totalDistanceList = @()
 foreach($lLocID in $leftList){
 
-    [int]$rLocID = $rightList[$i]
-    [int]$totalDistance = 0
-
-    if($rLocID -gt $lLocID){
-        $totalDistance = $RLocID - [int]$lLocID
-        
-    } else {
-        $totalDistance = [int]$lLocID - $rLocID
-    };
-    
-    $totalDistanceList += $totalDistance
-    $i++
-};
+    [int]$totalDistance = [System.Math]::Abs([int]$($rightList[$i]) - [int]$lLocID)
+    [void]$totalDistanceList.Add($totalDistance) 
+    $i++ 
+}
 
 [int]$totalDistanceBetweenLists = $($totalDistanceList | Measure-Object -Sum).Sum
 Write-Output "Total Distance Between lists: $totalDistanceBetweenLists"
 
+## Part One overall O(n log n)
+
 ### Part two ###
 
+# O(n)
 $simulatityScores = [System.Collections.ArrayList]@()
+$rightListHash = @{}
+foreach($rLocID in $rightList){
+    if($rightListHash.ContainsKey($rLocID)){
+        $rightListHash[$rLocID]++
+    } else {
+        $rightListHash[$rLocID] = 1
+    }
+}
+
 foreach($lLocID in $leftList){
 
-    [int]$timesAppeared = 0
-
-    foreach($rLocID in $rightList){
-        if($lLocID -eq $rLocID){
-            $timesAppeared++
-        };
-    };
-    
-    if(-not($timesAppeared -eq 0)){
-        $simscore = [int]$lLocID * $timesAppeared
-        $simulatityScores += $simscore
-    };
-;}
+    $simScore = [int]$lLocID * $($rightListHash[[int]$lLocID])
+    [void]$simulatityScores.Add($simScore)
+}
 
 $totalSimScore = $($simulatityScores | Measure-Object -Sum).Sum
-
 Write-Output "Simularity Score: $totalSimScore"
+
+## Part 2 overall O(n)
 
