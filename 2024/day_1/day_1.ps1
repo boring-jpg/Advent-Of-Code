@@ -9,29 +9,20 @@ foreach($line in $masterList) {
     [void]$rightList.Add($($line.Split("   "))[1])
 };
 
-# O(n log n) .net arrayList uses quicksort
+# O(n log n)
 $leftList.Sort()
 $rightList.Sort()
 
 # O(n)
 [int]$i = 0
-[System.Collections.ArrayList]$totalDistanceList = @()
+[int]$totalDistanceBetweenLists = 0
 foreach($lLocID in $leftList){
-
-    [int]$totalDistance = [System.Math]::Abs([int]$($rightList[$i]) - [int]$lLocID)
-    [void]$totalDistanceList.Add($totalDistance) 
+    $totalDistanceBetweenLists += [System.Math]::Abs($($rightList[$i]) - $lLocID)
     $i++ 
 }
-
-[int]$totalDistanceBetweenLists = $($totalDistanceList | Measure-Object -Sum).Sum
 Write-Output "Total Distance Between lists: $totalDistanceBetweenLists"
 
-## Part One overall O(n log n)
-
-### Part two ###
-
 # O(n)
-$simulatityScores = [System.Collections.ArrayList]@()
 $rightListHash = @{}
 foreach($rLocID in $rightList){
     if($rightListHash.ContainsKey($rLocID)){
@@ -41,14 +32,9 @@ foreach($rLocID in $rightList){
     }
 }
 
+# O(n)
+$totalSimScore = 0
 foreach($lLocID in $leftList){
-
-    $simScore = [int]$lLocID * $($rightListHash[[int]$lLocID])
-    [void]$simulatityScores.Add($simScore)
+    $totalSimScore += $([int]$lLocID * $($rightListHash[[int]$lLocID]))
 }
-
-$totalSimScore = $($simulatityScores | Measure-Object -Sum).Sum
 Write-Output "Simularity Score: $totalSimScore"
-
-## Part 2 overall O(n)
-
